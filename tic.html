@@ -32,6 +32,10 @@
         .box.opponent {
             background-color: rgb(158, 19, 142);
         }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 
@@ -48,13 +52,16 @@
         <div class="box">9</div>
 
     </div>
+    <div class="hidden myTurn">It's your turn</div>
+    <div class="wait">Wait for the other player</div>
 
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         let socket = io();
-
         let myTurn = false;
+        let myTurnIndicator = document.querySelector(".myTurn");
+        let waitIndicator = document.querySelector(".wait");
 
         socket.on("click", index => {
             console.log("data received: " + index);
@@ -62,11 +69,16 @@
             let boxes = Array.from(wrapper.children)
             boxes[index].classList.add("opponent");
             myTurn = true;
+            myTurnIndicator.classList.toggle("hidden");
+            waitIndicator.classList.toggle("hidden");
 
         });
 
         socket.on("turn", myTurnFromServer => {
             myTurn = myTurnFromServer;
+            myTurnIndicator.classList.toggle("hidden");
+            waitIndicator.classList.toggle("hidden");
+
         });
 
         document.querySelectorAll(".box").forEach(box => {
@@ -78,6 +90,9 @@
                     event.target.classList.add("mine");
                     socket.emit("click", index);
                     myTurn = false;
+                    myTurnIndicator.classList.toggle("hidden");
+                    waitIndicator.classList.toggle("hidden");
+
                 } else {
                     console.log("Not your turn");
                 }
