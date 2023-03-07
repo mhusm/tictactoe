@@ -10,13 +10,25 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/tic.html');
 });
 app.use(express.static('public'));
-
+let sockets = [];
 
 io.on('connection', (socket) => {
+    sockets.push(socket);
+    console.log("number of sockets: " +sockets.length);
+
+    if (sockets.length == 1) {
+        socket.emit("turn", true);
+    }
     socket.on("click", data => {
         console.log(data);
         socket.broadcast.emit("click", data);
     });
+
+    socket.on('disconnect', function() {
+        console.log('Got disconnect!');
+        let i = sockets.indexOf(socket);
+        sockets.splice(i, 1);
+     });
 });
 
 let port = process.env.PORT || 8080;        // set our port

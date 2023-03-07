@@ -15,7 +15,7 @@
             background-color: #fff;
             color: #444;
         }
-        
+
 
         .box {
             background-color: #444;
@@ -54,24 +54,36 @@
     <script>
         let socket = io();
 
+        let myTurn = false;
+
         socket.on("click", index => {
             console.log("data received: " + index);
             let wrapper = document.querySelector(".wrapper");
             let boxes = Array.from(wrapper.children)
             boxes[index].classList.add("opponent");
-            
+            myTurn = true;
+
+        });
+
+        socket.on("turn", myTurnFromServer => {
+            myTurn = myTurnFromServer;
         });
 
         document.querySelectorAll(".box").forEach(box => {
             box.addEventListener("click", event => {
-                let parent = event.target.parentNode;
-                let index = Array.from(parent.children).indexOf(event.target);
-                console.log(index);
-                event.target.classList.add("mine");
-                socket.emit("click", index);
-             })
+                if (myTurn) {
+                    let parent = event.target.parentNode;
+                    let index = Array.from(parent.children).indexOf(event.target);
+                    console.log(index);
+                    event.target.classList.add("mine");
+                    socket.emit("click", index);
+                    myTurn = false;
+                } else {
+                    console.log("Not your turn");
+                }
+            })
         })
- 
+
 
     </script>
 </body>
