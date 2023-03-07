@@ -13,6 +13,10 @@ app.use(express.static('public'));
 
 
 io.on('connection', (socket) => {
+    socket.on("click", data => {
+        console.log(data);
+        socket.broadcast.emit("click", data);
+    });
 });
 
 let port = process.env.PORT || 8080;        // set our port
